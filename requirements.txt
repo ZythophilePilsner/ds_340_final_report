@@ -1,0 +1,10 @@
+keras
+tensorflow
+librosa
+soundfile
+datasets
+scikit-learn
+pandas
+matplotlib
+notebook
+ipykernel
