@@ -1,0 +1,15 @@
+.DS_Store
+.idea/
+.mplconfig/
+.venv/
+__pycache__/
+*.pyc
+
+data/
+artifacts/
+
+*.keras
+*.h5
+*.csv
+*.png
+*.log
