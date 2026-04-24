@@ -1,99 +1,180 @@
-# DS340 Midterm Project
+# DS340 Final Report: GTZAN And Suno Music Genre Classification
 
-This repository contains the code for a DS340 midterm project on music genre classification. The main workflow trains a paper-style CNN on GTZAN MFCC features and optionally evaluates the same model on locally stored AI-generated music. The latest notebook also adds a research-backed MFCC-statistics plus classical ML comparison for AI-generated music.
+This repository contains the final portable project deliverable for comparing music genre classification on human-recorded GTZAN audio and AI-generated Suno audio.
 
-## Repository Contents
+The main analysis file is `final_submission_v2.ipynb`.
 
-- `demo_3.ipynb`: end-to-end notebook covering preprocessing, MFCC extraction, CNN training, GTZAN evaluation, and optional AI music evaluation
-- `demo_6.ipynb`: latest extended notebook with the parent CNN workflow, AI-music inference comparisons, and MFCC-statistics classifiers such as linear SVM, RBF SVM, logistic regression, and Extra Trees
-- `midterm_progress.py`: script version of the core GTZAN plus AI-evaluation workflow
-- `load_data.ipynb`: notebook for loading or organizing the local Suno dataset batches
-- `demo_1.ipynb`, `demo_2.ipynb`, `trial_1.ipynb`: earlier exploratory notebooks
-- `requirements.txt`: Python dependencies for the notebooks and scripts
+## Final Repository Files
 
-## Public Upload Note
+The repo is intentionally small. The important files are:
 
-`demo_3.ipynb` and `demo_6.ipynb` are included in a public-safe form:
+- `final_submission_v2.ipynb`: final notebook that rebuilds the full analysis and visual evidence from raw audio folders
+- `prepare_ai_music.py`: script that downloads and prepares the `ai_music/` evaluation set from Hugging Face
+- `requirements.txt`: Python packages needed for the script and notebook
+- `DATASET_MANIFEST.md`: short dataset layout reference
 
-- stored without cell outputs or execution counts
-- cleaned of hardcoded personal filesystem paths
-- configured to use repository-local `data/` and `artifacts/` folders
-- trimmed to avoid keeping unnecessary AI metadata fields such as prompts and track titles in notebook-generated artifacts
+## Dataset Sources
 
-## Project Workflow
+- AI music source: [humair025/suno-audio on Hugging Face](https://huggingface.co/datasets/humair025/suno-audio)
+- Human music source: [GTZAN Dataset - Music Genre Classification on Kaggle](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification)
 
-1. Load one GTZAN example track and walk through waveform, rectification, smoothing, FFT, STFT, spectrogram, and MFCC views.
-2. Build MFCC segment datasets from the local GTZAN audio folders.
-3. Train the CNN used in the paper replication.
-4. Evaluate the trained model on a GTZAN test split.
-5. Optionally map local Suno tags into the GTZAN label space and evaluate the same model on AI-generated tracks.
-6. In `demo_6.ipynb`, compare additional AI-music decision rules and research-backed MFCC-statistics classifiers.
+## Step-By-Step Run Guide
 
-## Demo 6 Extension
+Follow these steps in order on a fresh computer.
 
-`demo_6.ipynb` keeps the previous parent-paper CNN implementation and adds two new comparison blocks:
+### 1. Clone the repository
 
-- AI-music inference rules, including section-aware/core-window voting and probability-weighted voting.
-- MFCC-statistics classifiers, where each segment is represented by summary statistics such as mean, standard deviation, quartiles, min/max, and delta-MFCC statistics before training classical ML models.
+```bash
+git clone https://github.com/ZythophilePilsner/ds_340_final_report.git
+cd ds_340_final_report
+```
 
-In the local cached run, the strongest AI-music method was the MFCC-statistics linear SVM with track-level majority voting:
+### 2. Create and activate a virtual environment
+
+Python 3.11 or 3.12 is recommended.
+
+macOS / Linux:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Windows PowerShell:
+
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+### 3. Install the required Python packages
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+### 4. Download the GTZAN dataset and place it in the repo root
+
+Open the Kaggle page:
+
+[GTZAN Dataset - Music Genre Classification](https://www.kaggle.com/datasets/andradaolteanu/gtzan-dataset-music-genre-classification)
+
+Download and unzip the dataset. The notebook only needs the `genres_original` audio folder.
+
+Rename `genres_original` to `human_music` and place it in the repository root.
+
+If Kaggle extracts into a nested path such as `Data/genres_original`, move that folder and rename it:
+
+```bash
+mv /path/to/extracted/Data/genres_original human_music
+```
+
+After this step, your repository should look like:
 
 ```text
-Parent CNN majority vote:          accuracy 0.2167 | macro F1 0.1943
-Core-window CNN vote:              accuracy 0.2567 | macro F1 0.2350
-MFCC-statistics linear SVM vote:   accuracy 0.3533 | macro F1 0.3245
+ds_340_final_report/
+  final_submission_v2.ipynb
+  prepare_ai_music.py
+  requirements.txt
+  DATASET_MANIFEST.md
+  human_music/
+    blues/
+    classical/
+    country/
+    disco/
+    hiphop/
+    jazz/
+    metal/
+    pop/
+    reggae/
+    rock/
 ```
 
-This result is useful for the final paper's Novelty or Contributions section because it shows a domain-shift improvement on AI-generated music, not only another GTZAN-only model.
+### 5. Build the AI music evaluation folder
 
-## Expected Local Data
-
-Large datasets are not included in the repository.
-
-The code expects:
-
-- `data/genres_original`
-- `data/suno-audio` for the optional AI-evaluation section
-
-Generated outputs are written to `artifacts/demo_3` or `artifacts/demo_6` and are ignored by git.
-
-## Setup
-
-Create and activate a virtual environment, then install dependencies:
+Run:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+python prepare_ai_music.py
 ```
 
-## Working With The Notebooks
+What the script does:
 
-Launch Jupyter and open the notebook you want to run:
+- downloads the public Suno dataset from Hugging Face
+- selects a deterministic balanced subset
+- writes 30 processed clips per genre
+- trims or pads every clip to 30 seconds
+- creates `ai_music/` with the ten genre folders
+- writes `ai_music_manifest.csv`
+
+After this finishes, your repository should also contain:
+
+```text
+ai_music/
+  blues/
+  classical/
+  country/
+  disco/
+  hiphop/
+  jazz/
+  metal/
+  pop/
+  reggae/
+  rock/
+```
+
+### 6. Start Jupyter and open the final notebook
 
 ```bash
-jupyter notebook demo_3.ipynb
-jupyter notebook demo_6.ipynb
+jupyter notebook final_submission_v2.ipynb
 ```
 
-The notebooks assume the local dataset folders above already exist. If `data/suno-audio` is missing, the AI-evaluation sections are skipped automatically.
+### 7. Run the notebook from top to bottom
 
-## Running The Script
+Inside Jupyter:
 
-GTZAN-only run:
+- open `final_submission_v2.ipynb`
+- if needed, leave the dataset input cell at its default values because it already expects `human_music/` and `ai_music/` in the repo root
+- click `Kernel -> Restart & Run All`
 
-```bash
-python midterm_progress.py --skip-ai-eval
+The notebook includes a runtime dependency check cell near the top. On a clean machine, that cell can install any missing notebook packages into the active kernel before the main imports run.
+
+## What `final_submission_v2.ipynb` Does
+
+The notebook rebuilds the full workflow directly from `human_music/` and `ai_music/`:
+
+1. loads raw audio from both dataset folders
+2. extracts MFCC segment features
+3. trains the parent-style CNN on human music
+4. evaluates the CNN on held-out human music
+5. applies the same CNN to AI music
+6. builds MFCC-statistics features and trains classical ML models
+7. compares the final methods on human and AI evaluations
+8. generates visual evidence between the major steps
+9. saves final tables, metrics, and confusion matrices
+
+## Output Files
+
+When the notebook finishes, it writes outputs under:
+
+```text
+artifacts/final_submission_v2/
 ```
 
-Full GTZAN plus AI evaluation:
+That folder includes:
 
-```bash
-python midterm_progress.py --rebuild-gtzan-json --rebuild-ai-features --retrain-model
-```
+- `final_method_comparison.csv`
+- `mfcc_stats_method_comparison.csv`
+- `mfcc_stats_track_results.csv`
+- `cnn_ai_track_results.csv`
+- `final_summary.json`
+- `final_ai_track_confusion_matrix.png`
+- `cnn_training_history.csv`
+- visual checkpoint plots produced during the notebook run
 
-## Notes
+## Portability Notes
 
-- The GTZAN model uses MFCC segments as inputs to a CNN that follows the paper replication structure.
-- The AI-evaluation extension uses heuristic tag mapping because the Suno dataset does not ship with GTZAN-style labels.
-- The `demo_6` extension compares multiple methods and writes result tables under `artifacts/demo_6`, including `research_method_comparison.csv` when run locally.
+- The notebook does not require precomputed JSON caches, saved models, or hidden local files.
+- The repository alone is not enough to run the project; you must also add `human_music/` from Kaggle and generate `ai_music/` with `prepare_ai_music.py`.
+- Once those two dataset folders exist, `final_submission_v2.ipynb` is designed to run on another computer directly from the cloned repository.

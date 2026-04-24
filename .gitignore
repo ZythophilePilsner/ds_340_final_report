@@ -4,12 +4,16 @@
 .venv/
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
 
 data/
+human_music/
+ai_music/
+ai_music_manifest.csv
 artifacts/
+dataset_upload/
 
 *.keras
 *.h5
-*.csv
-*.png
 *.log
+*.zip
